@@ -1,46 +1,64 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     var bttons = document.querySelectorAll('button');
-    console.log(bttons);
-    
     var input_no = document.querySelector('input');
-   
-    
+    var bracket_c=0;
+    var res='';
     bttons.forEach(function (btton) {
         btton.addEventListener('click', function () {
             strd = btton.className;
+            input_no.style.display="block";
+            var i = input_no.value.length - 1;
             var symbol = btton.value;
             if (strd=== "numbers" ) {
                 if (input_no.value == '0') {
-                    input_no.value = btton.value;
+                    input_no.value = symbol;
                 }
+                
                 else {
-                    input_no.value = input_no.value + btton.value;
+                    input_no.value += symbol;
                 }
                 document.querySelector('.result').innerHTML = eval(input_no.value);
             }
             else if (strd.match("two_no")) {
-                if (input_no.value.length==1&&input_no.value==='0'){
-                    input_no.value = '';
+                if(res!==''){
+                    input_no.value+=res;
+                    
                 }
-                if (input_no.value[input_no.value.length - 1] === '.') {
-                    input_no.value = input_no.value.slice(0, input_no.value.length - 1);
+                res='';
+                if (input_no.value[i]==='('){
+                    input_no.value += '0';
                 }
-                input_no.value = input_no.value + symbol;
-                input_no.value = check_sign(input_no.value, input_no.value.length - 1, strd.match("pow"));
-                console.log(btton, input_no.value)
+                if (input_no.value[i] === '.') {
+                    input_no.value = input_no.value.slice(0, i);
+                }
+                input_no.value += symbol;
+                input_no.value = check_sign(input_no.value, i+1, strd.match("pow"));
             }
             else if (strd.match("one_no")) {
+                if (res !== '') {
+                    input_no.value = res;
+                    res = '';
+                }
                 input_no.value = one_no_expression(input_no.value, symbol);
                 document.querySelector('.result').innerHTML = eval(input_no.value);
             }
 
             else if (strd === "ans") {
-                input_no.value = eval(input_no.value);
+                if(bracket_c>0){
+                    input_no.value += ")".repeat(bracket_c);
+                }
+                if (eval(input_no.value) ===undefined){
+                    return 0;
+                }
+                res = eval(input_no.value);
                 document.querySelector('.result').innerHTML = eval(input_no.value);
+                input_no.style.display = "none";
+                input_no.value='';
             }
             else if (strd === "clear") {
                 input_no.value = 0;
+                bracket_c=0;
                 document.querySelector('.result').innerHTML = "";
 
             }
@@ -56,30 +74,48 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             else if (strd === "backspace") {
-                input_no.value = input_no.value.slice(0, input_no.value.length - 1)
-                console.log(input_no.value.length)
+                if (input_no.value[i]==="("){
+                    bracket_c--;
+                }
+                else if (input_no.value[i] === ")"){
+                    bracket_c++;
+                }
+                input_no.value = input_no.value.slice(0, i)
                 document.querySelector('.result').innerHTML = "";
             }
             else if (strd === "bracket") {
-                console.log(symbol)
-                
+                i=input_no.value.length-1;
                 if(symbol==='('){
                     if (input_no.value.length == 1 && input_no.value === '0') {
+                        bracket_c++;
                         input_no.value = '(';
+                        bracket_no_dis(bracket_c);
                         return input_no;
                     }
-                    if (input_no.value[input_no.value.length - 1].match(/\d/) || input_no.value[input_no.value.length - 1]===")"){
+                    if (input_no.value[i].match(/\d/) || input_no.value[i]===")"){
                         input_no.value=`${input_no.value}*(`;
                     }
                     else{
                         input_no.value = `${input_no.value}(`;
                     }
+                    bracket_c++;
+                    bracket_no_dis(bracket_c);
                 }
                 else if (symbol === ')'){
-                    input_no.value = `${input_no.value})`;
+                    if(bracket_c>0){
+                        if(!input_no.value[i].match(/\d/)){
+                            input_no.value = `${input_no.value}0`;
+                        }
+                        else{
+                            input_no.value = `${input_no.value})`;
+                        }
+                        input_no.value = `${input_no.value})`;
+                        bracket_c--;
+                    }
+                    bracket_no_dis(bracket_c);
                 }
             }
-
+            
         })
     })
 
@@ -92,7 +128,6 @@ function one_no_expression(first, str) {
     let feq = first.slice(0, first.length - c);
     let seq = first.slice(first.length - c);
     var ans='';
-    //console.log(first.slice(first.length - c), first.slice(0,first.length - c), c);
     if (str === 'inv') {
         return (first = `${feq}1/${seq}`);
     }
@@ -134,29 +169,21 @@ function one_no_expression(first, str) {
         return (first = feq + ans);
     }
     else if (str === 'fact') {
-        ans=factorial(seq)
+        ans=factorial(seq);
         return (first = feq + ans);
     }
     else if (str === 'neg') {
-        console.log(feq[feq.length - 1]);
-        if (feq[feq.length - 1] === '-') {
-            let x = feq.slice(0, length - 1)
-            return (first = `${x}+${seq}`)
+        let ans= eval(`${seq}*(-1)`);
+        if (ans>=0) {
+            
+            return (first = `${feq}${ans}`)
         }
-        else if (feq[feq.length - 1] === '+') {
-            let x = feq.slice(0, length - 1)
-            return (first = `${x}-${seq}`)
+        else{
+            return (first = `${feq}(${ans})`)
         }
-        return (first = `${feq}-${seq}`);
     }
     else if (str === 'modd') {
-        console.log(feq[feq.length - 1], feq[feq.length - 2]);
-        if (feq[feq.length - 1] === '-' && feq[feq.length - 2] === '-') {
-            let x = feq.slice(0, length - 1)
-            ans=eval(`Math.abs(-${seq})`)
-            return (first = x + ans)
-        }
-        ans=eval(`Math.abs(${seq})`)
+        ans=eval(`Math.abs(${eval(seq)})`)
         return (first = feq +ans );
     }
 }
@@ -191,6 +218,7 @@ function separate_2nd_no(str) {
 
 function factorial(n) {
     var c = 1;
+    n=eval(n);
     for (let i = n; i > 0; i--) {
         c *= i;
     }
@@ -200,23 +228,19 @@ function factorial(n) {
 function check_sign(str,i, bool) {
     let check1 = /[\%*]/;
     let check2 = /[+-]/;
-   
+
     let j = i - 1;
-    //console.log(!str[j - 1].match(/\d/))
     console.log(str[j], str[j].match(/\d/))
-    if (!str[j].match(/\d/)){
-        console.log(str[i], str[i].match(check2), str[j],str[j].match( check1))
-        if(str[j]==="("||str[j]===')'){
+    if (!str[j].match(/\d/)) {
+        console.log(str[i], str[i].match(check2), str[j], str[j].match(check1))
+        if (str[j] === "(" || str[j] === ')') {
             return str;
         }
-        else{
+        else {
             if (bool) {
                 return check_sign(str, i - 1, bool);
             }
             else if (str[i].match(check2) && str[j].match(check1)) {
-                return check_sign(str, i - 1, bool);
-            }
-            else if (str[i] === '-' && str[j] === '+') {
                 return check_sign(str, i - 1, bool);
             }
             else {
@@ -224,9 +248,18 @@ function check_sign(str,i, bool) {
             }
         }
     }
-    
     else{
         return str;
-    }
-    
+    } 
 }
+
+function bracket_no_dis(no){
+    if (no>0){
+        document.getElementById('bracket-no').style.display='block';
+        document.querySelector('#bracket-no').innerHTML=no;
+    }
+    else{
+        document.getElementById('bracket-no').style.display = 'none';
+    }
+}
+
