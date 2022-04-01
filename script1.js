@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.querySelector('.result').innerHTML = eval(input_no.value);
             }
             else if (strd.match("two_no")) {
-                if(res!==''){
+                if(res!=='' && input_no.value===''){
                     input_no.value+=res;   
                 }
                 res='';
