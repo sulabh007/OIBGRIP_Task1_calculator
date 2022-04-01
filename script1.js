@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 input_no.value = check_sign(input_no.value, i+1, strd.match("pow"));
             }
             else if (strd.match("one_no")) {
-                if (res !== '') {
-                    input_no.value = res;
-                    res = '';
+                if (res !== '' && input_no.value === '') {
+                    input_no.value += res;
                 }
+                res = '';
                 input_no.value = one_no_expression(input_no.value, symbol);
                 document.querySelector('.result').innerHTML = eval(input_no.value);
             }
@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (strd === "ans") {
                 if(bracket_c>0){
                     input_no.value += ")".repeat(bracket_c);
+                    bracket_c=0;
+                    bracket_no_dis(bracket_c);
                 }
                 if (eval(input_no.value) ===undefined){
                     return 0;
@@ -85,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (strd === "bracket") {
                 i=input_no.value.length-1;
                 if(symbol==='('){
-                    if (input_no.value.length == 1 && input_no.value === '0') {
+                        if ((input_no.value.length == 1 && input_no.value === '0')||input_no.value.length==0) {
                         bracket_c++;
                         input_no.value = '(';
                         bracket_no_dis(bracket_c);
