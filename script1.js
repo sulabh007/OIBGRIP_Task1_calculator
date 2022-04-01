@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             else if (strd.match("two_no")) {
                 if(res!==''){
-                    input_no.value+=res;
-                    
+                    input_no.value+=res;   
                 }
                 res='';
                 if (input_no.value[i]==='('){
@@ -107,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             input_no.value = `${input_no.value}0`;
                         }
                         else{
-                            input_no.value = `${input_no.value})`;
+                            input_no.value = `${input_no.value}`;
                         }
                         input_no.value = `${input_no.value})`;
                         bracket_c--;
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-
+//For operation that only needs one number
 function one_no_expression(first, str) {
     let c = separate_2nd_no(first);
     let feq = first.slice(0, first.length - c);
@@ -174,8 +173,7 @@ function one_no_expression(first, str) {
     }
     else if (str === 'neg') {
         let ans= eval(`${seq}*(-1)`);
-        if (ans>=0) {
-            
+        if (ans>=0) {  
             return (first = `${feq}${ans}`)
         }
         else{
@@ -188,6 +186,7 @@ function one_no_expression(first, str) {
     }
 }
 
+//to separate last number from the strings including decimals and brackets
 function separate_2nd_no(str) {
     let check = /^\d*\.?\d*$/;
     var count = 0;
@@ -215,7 +214,7 @@ function separate_2nd_no(str) {
     return (count);
 }
 
-
+//Factorial
 function factorial(n) {
     var c = 1;
     n=eval(n);
@@ -225,6 +224,7 @@ function factorial(n) {
     return c;
 }
 
+//To make sure that their aren't multiple operators except for "**" and "(*,/,%)(+,-)" in the equation 
 function check_sign(str,i, bool) {
     let check1 = /[\%*]/;
     let check2 = /[+-]/;
@@ -233,11 +233,11 @@ function check_sign(str,i, bool) {
     console.log(str[j], str[j].match(/\d/))
     if (!str[j].match(/\d/)) {
         console.log(str[i], str[i].match(check2), str[j], str[j].match(check1))
-        if (str[j] === "(" || str[j] === ')') {
+        if (str[j] === "(" || str[j] === ')') {     //skip if there is bracket
             return str;
         }
         else {
-            if (bool) {
+            if (bool) { //check for power
                 return check_sign(str, i - 1, bool);
             }
             else if (str[i].match(check2) && str[j].match(check1)) {
@@ -253,6 +253,7 @@ function check_sign(str,i, bool) {
     } 
 }
 
+//To display the number of open brackets  
 function bracket_no_dis(no){
     if (no>0){
         document.getElementById('bracket-no').style.display='block';
